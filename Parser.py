@@ -17,12 +17,12 @@ class Parser:
         
         self.unitRegex = re.compile("[a-zA-Z]")
         
-        self.regexes = {
-            re.compile("[-+\\*/\^()]|in$|to$"):	self.parseOperator,
-            re.compile("[-+]?[0-9]+\\.?[0-9]*"):self.parseNumber,
-            re.compile("[-+]?[0-9]*\\.?[0-9]+"):self.parseNumber,
-            self.unitRegex:						self.parseUnit
-        }
+        self.regexes = [
+            (re.compile("[-+\\*/\^()]|in$|to$"),  self.parseOperator),
+            (re.compile("[-+]?[0-9]+\\.?[0-9]*"), self.parseNumber),
+            (re.compile("[-+]?[0-9]*\\.?[0-9]+"), self.parseNumber),
+            (self.unitRegex,                      self.parseUnit)
+        ]
         
         self.parsingConversion = False 
     
@@ -50,9 +50,9 @@ class Parser:
             self.parsingConversion = True
         if len(t) < 1:
             return False
-        for r in self.regexes:
-            if r.match(t):
-                value = self.regexes[r](t)
+        for regex, function in self.regexes:
+            if regex.match(t):
+                value = function(t)
                 self.processValue(value)
                 return True
         raise CalcException("unknown token %s" % t)
